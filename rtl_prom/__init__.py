@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from collections import defaultdict
 import time
 import logging
+from subprocess import Popen, PIPE
 
 
 @dataclass
@@ -27,14 +28,22 @@ class ConfigItem:
 @click.command
 @click.option("--port", type=int, default=8081)
 @click.argument("config_file", type=click.File("r"))
-def main(port, config_file):
+@click.argument("input_file", type=click.Path(exists=True), required=False)
+def main(port, config_file, input_file):
     logging.basicConfig(level=logging.INFO)
     config = [ConfigItem(**ci) for ci in json.load(config_file)]
     metrics = {}
     start_http_server(port)
-    for line in sys.stdin:
+    lines = sys.stdin
+    if input_file:
+        lines = Popen(
+            ["/usr/bin/tail", "-n", "0", "-F", input_file],
+            stdout=PIPE,
+            text=True,
+            bufsize=1,
+        ).stdout
+    for line in lines:
         data = json.loads(line)
-
         try:
             ci = next(item for item in config if item.matches(data))
         except StopIteration:
