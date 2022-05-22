@@ -4,7 +4,6 @@ import json
 from typing import List
 from prometheus_client import start_http_server, Gauge
 from dataclasses import dataclass
-from collections import defaultdict
 import time
 import logging
 from subprocess import Popen, PIPE

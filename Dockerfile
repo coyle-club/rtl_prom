@@ -6,4 +6,4 @@ COPY setup.py /app/setup.py
 
 RUN pip install -e /app
 
-ENTRYPOINT /bin/sh
+ENTRYPOINT ["/usr/local/bin/rtl_prom"]
